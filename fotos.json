@@ -1,6 +1,38 @@
 [
-  { "archivo": "ejemplo-1.jpg", "texto": "Reemplaza esta foto con una real de la promoción" },
-  { "archivo": "ejemplo-2.jpg", "texto": "Cada foto puede llevar una línea de texto" },
-  { "archivo": "ejemplo-3.jpg", "texto": "Escanea, recuerda y comparte" },
-  { "archivo": "ejemplo-4.jpg", "texto": "25 años después — Bodas de Plata" }
+  {
+    "archivo": "previas-fiesta1999.jpeg",
+    "texto": "Previas Fiesta 1999"
+  },
+  {
+    "archivo": "Danny-Trampeando.jpeg",
+    "texto": "Danny Trampeando"
+  },
+  {
+    "archivo": "lucho-trampeando.jpeg",
+    "texto": "Lucho Trampeando"
+  },
+  {
+    "archivo": "marino-infiel.jpeg",
+    "texto": "Marino Infiel"
+  },
+  {
+    "archivo": "Maris-campeonando.jpeg",
+    "texto": "Maris campeonando"
+  },
+  {
+    "archivo": "Lucho-2.jpeg",
+    "texto": "Lucho otra vez"
+  },
+  {
+    "archivo": "Maris-otra-vez.jpeg",
+    "texto": "Maris de nuevo"
+  },
+  {
+    "archivo": "Rodriga.jpeg",
+    "texto": "Rodriga"
+  },
+  {
+    "archivo": "Trio.jpeg",
+    "texto": "Trio con Nardy"
+  }
 ]
