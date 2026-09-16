@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Administrador · fotos.json</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=EB+Garamond:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --negro:#0e0b08;--madera:#2a1d12;--pergamino:#e9dcc2;--tinta:#2c2113;
+    --oro:#c9a86a;--oro-claro:#e2c88f;--plata:#d3d7df;--plata-hondo:#9aa0ac;
+    --azul:#21467f;--rojo:#a52a1f;--ok:#4c8a5a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"EB Garamond",Georgia,serif;color:var(--pergamino);
+    background:
+      radial-gradient(120% 70% at 50% -10%, rgba(201,168,106,.10), transparent 60%),
+      linear-gradient(180deg,#120d08,#0b0805);
+    min-height:100vh;line-height:1.5;padding:clamp(1rem,4vw,2.5rem);
+  }
+  .wrap{max-width:840px;margin:0 auto}
+  h1{font-family:"Cinzel",serif;font-weight:600;color:var(--plata);
+     font-size:clamp(1.4rem,4vw,2rem);letter-spacing:.06em;text-align:center;margin-bottom:.3rem}
+  .sub{text-align:center;color:var(--oro);font-style:italic;margin-bottom:1.6rem}
+
+  .pasos{
+    background:linear-gradient(180deg,rgba(42,29,18,.6),rgba(20,14,8,.6));
+    border:1px solid rgba(201,168,106,.3);border-radius:6px;
+    padding:1.1rem 1.3rem;margin-bottom:1.6rem;color:var(--pergamino);font-size:1rem;
+  }
+  .pasos ol{margin:.4rem 0 0 1.2rem;display:grid;gap:.35rem}
+  .pasos code{font-family:ui-monospace,Menlo,monospace;background:rgba(0,0,0,.45);
+     padding:.08em .4em;border-radius:3px;color:var(--oro-claro);font-size:.9em}
+
+  .acciones{display:flex;flex-wrap:wrap;gap:.7rem;margin-bottom:1.4rem}
+  .btn{
+    font-family:"Cinzel",serif;font-size:.9rem;letter-spacing:.05em;cursor:pointer;
+    border:1px solid rgba(201,168,106,.5);border-radius:4px;padding:.7em 1.2em;
+    background:linear-gradient(180deg,#2c1e12,#1c130b);color:var(--oro-claro);
+    transition:background .2s,transform .15s;
+  }
+  .btn:hover{background:#3a2817;transform:translateY(-1px)}
+  .btn.plata{background:linear-gradient(180deg,#f3f5f9,#d3d7df 60%,#9aa0ac);color:#1a1206;border-color:#cfd3db}
+  .btn.plata:hover{filter:brightness(1.05)}
+  .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+  input[type=file]{display:none}
+
+  .vacio{
+    text-align:center;padding:2.6rem 1rem;border:1px dashed rgba(201,168,106,.4);
+    border-radius:6px;color:var(--plata-hondo);font-style:italic;
+  }
+  .lista{display:grid;gap:.7rem}
+  .item{
+    display:grid;grid-template-columns:64px 1fr auto;gap:.9rem;align-items:center;
+    background:linear-gradient(180deg,#f2e9d6,#e5d8bd);color:var(--tinta);
+    border-radius:5px;padding:.6rem .7rem;
+    box-shadow:0 6px 16px -10px rgba(0,0,0,.7);
+  }
+  .item .thumb{width:64px;height:64px;border-radius:4px;object-fit:cover;background:#2a1d12;
+     display:grid;place-items:center;color:var(--oro-claro);font-size:.65rem;text-align:center}
+  .item .campos{min-width:0}
+  .item .fname{font-size:.78rem;color:#6a5638;font-family:ui-monospace,Menlo,monospace;
+     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:.25rem}
+  .item input.cap{
+    width:100%;border:1px solid #c3b48f;border-radius:4px;padding:.45em .6em;
+    font-family:"EB Garamond",serif;font-size:1rem;color:var(--tinta);background:#fffdf7;
+  }
+  .item input.cap:focus{outline:2px solid var(--oro);border-color:var(--oro)}
+  .ctrl{display:flex;gap:.25rem}
+  .ctrl button{
+    width:30px;height:30px;border:1px solid #bda86f;border-radius:4px;cursor:pointer;
+    background:#fbf5e7;color:#5a4020;font-size:1rem;display:grid;place-items:center;
+  }
+  .ctrl button:hover{background:#f0e3c4}
+  .ctrl button.del{color:var(--rojo);border-color:#d3a49c}
+
+  .barra{
+    position:sticky;bottom:0;margin-top:1.4rem;padding:1rem;border-radius:6px;
+    background:linear-gradient(180deg,rgba(20,14,8,.9),rgba(12,9,5,.95));
+    border:1px solid rgba(201,168,106,.3);display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;justify-content:space-between;
+    backdrop-filter:blur(4px);
+  }
+  .barra .n{color:var(--plata);font-family:"Cinzel",serif;letter-spacing:.08em;font-size:.9rem}
+  .toast{
+    position:fixed;left:50%;bottom:1.5rem;transform:translateX(-50%) translateY(120%);
+    background:var(--ok);color:#fff;padding:.7em 1.3em;border-radius:6px;
+    font-size:.95rem;box-shadow:0 8px 20px rgba(0,0,0,.5);transition:transform .3s,opacity .3s;z-index:20;
+    opacity:0;visibility:hidden;
+  }
+  .toast.show{transform:translateX(-50%) translateY(0);opacity:1;visibility:visible}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Administrador de fotos</h1>
+  <p class="sub">Genera el archivo <b>fotos.json</b> de la galería</p>
+
+  <div class="pasos">
+    Cómo funciona:
+    <ol>
+      <li>Pulsa <b>Añadir fotos</b> y elige <b>las mismas imágenes</b> que subirás a GitHub.</li>
+      <li>Escribe una línea de texto para cada una (opcional) y ordénalas con ▲ ▼.</li>
+      <li>Pulsa <b>Descargar fotos.json</b> y sube ese archivo a tu repositorio.</li>
+    </ol>
+    <p style="margin-top:.6rem;color:var(--plata-hondo);font-size:.9rem">Las miniaturas solo se ven aquí, en tu equipo. El archivo generado guarda únicamente el nombre y el texto de cada foto.</p>
+  </div>
+
+  <div class="acciones">
+    <label class="btn" for="file">＋ Añadir fotos</label>
+    <input type="file" id="file" accept="image/*" multiple>
+    <label class="btn" for="loadJson">↥ Cargar fotos.json existente</label>
+    <input type="file" id="loadJson" accept=".json,application/json">
+    <button class="btn" id="clear" disabled>Vaciar lista</button>
+  </div>
+
+  <div id="lista" class="lista"></div>
+  <div id="vacio" class="vacio">Todavía no has añadido fotos. Empieza con «Añadir fotos».</div>
+
+  <div class="barra">
+    <span class="n" id="conteo">0 fotos</span>
+    <div style="display:flex;gap:.7rem;flex-wrap:wrap">
+      <button class="btn" id="copy" disabled>Copiar JSON</button>
+      <button class="btn plata" id="download" disabled>⬇ Descargar fotos.json</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var items=[]; // {archivo, texto, url|null}
+  var lista=document.getElementById('lista'), vacio=document.getElementById('vacio');
+  var conteo=document.getElementById('conteo');
+  var elDown=document.getElementById('download'), elCopy=document.getElementById('copy'), elClear=document.getElementById('clear');
+
+  function esc(s){return (s||'').replace(/[<>&"]/g,function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c];});}
+
+  function render(){
+    vacio.style.display=items.length?'none':'block';
+    var has=items.length>0;
+    elDown.disabled=elCopy.disabled=elClear.disabled=!has;
+    conteo.textContent=items.length+(items.length===1?' foto':' fotos');
+    lista.innerHTML='';
+    items.forEach(function(it,i){
+      var row=document.createElement('div'); row.className='item';
+      var thumb= it.url
+        ? '<img class="thumb" src="'+it.url+'" alt="">'
+        : '<div class="thumb">sin<br>vista</div>';
+      row.innerHTML=
+        thumb+
+        '<div class="campos">'+
+          '<div class="fname" title="'+esc(it.archivo)+'">'+esc(it.archivo)+'</div>'+
+          '<input class="cap" type="text" maxlength="120" placeholder="Texto de la foto (una línea)" value="'+esc(it.texto)+'">'+
+        '</div>'+
+        '<div class="ctrl">'+
+          '<button data-a="up" title="Subir" '+(i===0?'disabled':'')+'>▲</button>'+
+          '<button data-a="down" title="Bajar" '+(i===items.length-1?'disabled':'')+'>▼</button>'+
+          '<button data-a="del" class="del" title="Quitar">✕</button>'+
+        '</div>';
+      row.querySelector('.cap').addEventListener('input',function(e){ it.texto=e.target.value; });
+      row.querySelectorAll('.ctrl button').forEach(function(b){
+        b.addEventListener('click',function(){
+          var a=b.getAttribute('data-a');
+          if(a==='up'&&i>0){ items.splice(i-1,0,items.splice(i,1)[0]); }
+          else if(a==='down'&&i<items.length-1){ items.splice(i+1,0,items.splice(i,1)[0]); }
+          else if(a==='del'){ if(it.url) URL.revokeObjectURL(it.url); items.splice(i,1); }
+          render();
+        });
+      });
+      lista.appendChild(row);
+    });
+  }
+
+  document.getElementById('file').addEventListener('change',function(e){
+    Array.prototype.forEach.call(e.target.files,function(f){
+      items.push({archivo:f.name, texto:'', url:URL.createObjectURL(f)});
+    });
+    e.target.value=''; render();
+  });
+
+  document.getElementById('loadJson').addEventListener('change',function(e){
+    var f=e.target.files[0]; if(!f) return;
+    var r=new FileReader();
+    r.onload=function(){
+      try{
+        var data=JSON.parse(r.result);
+        if(!Array.isArray(data)) throw 0;
+        data.forEach(function(d){
+          if(d&&d.archivo){
+            var ex=items.find(function(x){return x.archivo===d.archivo;});
+            if(ex){ ex.texto=d.texto||ex.texto; }
+            else items.push({archivo:d.archivo, texto:d.texto||'', url:null});
+          }
+        });
+        render(); toast('fotos.json cargado');
+      }catch(_){ toast('Ese archivo no es un fotos.json válido', true); }
+    };
+    r.readAsText(f); e.target.value='';
+  });
+
+  elClear.addEventListener('click',function(){
+    items.forEach(function(it){ if(it.url) URL.revokeObjectURL(it.url); });
+    items=[]; render();
+  });
+
+  function build(){
+    return JSON.stringify(items.map(function(it){return {archivo:it.archivo, texto:it.texto||''};}), null, 2);
+  }
+  elDown.addEventListener('click',function(){
+    var blob=new Blob([build()],{type:'application/json'});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob); a.download='fotos.json'; a.click();
+    URL.revokeObjectURL(a.href); toast('fotos.json descargado');
+  });
+  elCopy.addEventListener('click',function(){
+    var txt=build();
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(function(){toast('Copiado al portapapeles');},function(){fallback(txt);});
+    } else fallback(txt);
+  });
+  function fallback(txt){
+    var ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta);
+    ta.select(); try{document.execCommand('copy'); toast('Copiado al portapapeles');}catch(_){toast('No se pudo copiar',true);}
+    document.body.removeChild(ta);
+  }
+
+  var tEl=document.getElementById('toast'), tId=null;
+  function toast(msg,err){
+    tEl.textContent=msg; tEl.style.background=err?'#a52a1f':'#4c8a5a';
+    tEl.classList.add('show'); clearTimeout(tId);
+    tId=setTimeout(function(){tEl.classList.remove('show');},2200);
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
