@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel · Leñadores de Asís</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=EB+Garamond:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --negro:#0e0b08;--madera:#2a1d12;--pergamino:#e9dcc2;--tinta:#2c2113;
+    --oro:#c9a86a;--oro-claro:#e2c88f;--plata:#d3d7df;--plata-hondo:#9aa0ac;
+    --azul:#21467f;--rojo:#a52a1f;--ok:#4c8a5a;--amber:#c8923a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"EB Garamond",Georgia,serif;color:var(--pergamino);
+    background:
+      radial-gradient(120% 70% at 50% -10%, rgba(201,168,106,.10), transparent 60%),
+      linear-gradient(180deg,#120d08,#0b0805);
+    min-height:100vh;line-height:1.5;padding:clamp(1rem,4vw,2.4rem);
+  }
+  .wrap{max-width:900px;margin:0 auto}
+  h1{font-family:"Cinzel",serif;font-weight:600;color:var(--plata);
+     font-size:clamp(1.3rem,4vw,1.9rem);letter-spacing:.05em;text-align:center}
+  .sub{text-align:center;color:var(--oro);font-style:italic;margin:.2rem 0 1.4rem}
+
+  .panel{
+    background:linear-gradient(180deg,rgba(42,29,18,.6),rgba(20,14,8,.6));
+    border:1px solid rgba(201,168,106,.3);border-radius:8px;
+    padding:1.1rem 1.2rem;margin-bottom:1.2rem;
+  }
+  .panel h2{font-family:"Cinzel",serif;font-weight:500;color:var(--oro-claro);
+     font-size:1rem;letter-spacing:.05em;margin-bottom:.7rem}
+  label.f{display:block;font-size:.82rem;color:var(--plata);margin:.5rem 0 .2rem;letter-spacing:.03em}
+  input[type=text],input[type=password]{
+    width:100%;border:1px solid rgba(201,168,106,.4);border-radius:5px;
+    padding:.6em .7em;font-family:ui-monospace,Menlo,monospace;font-size:.92rem;
+    background:#160f09;color:var(--pergamino);
+  }
+  input:focus{outline:2px solid var(--oro);border-color:var(--oro)}
+  .row{display:flex;gap:.8rem;flex-wrap:wrap}
+  .row>div{flex:1;min-width:130px}
+  .chk{display:flex;align-items:center;gap:.5rem;margin:.7rem 0;color:var(--plata);font-size:.9rem}
+  .chk input{width:auto}
+
+  .btn{
+    font-family:"Cinzel",serif;font-size:.9rem;letter-spacing:.04em;cursor:pointer;
+    border:1px solid rgba(201,168,106,.5);border-radius:5px;padding:.7em 1.2em;
+    background:linear-gradient(180deg,#2c1e12,#1c130b);color:var(--oro-claro);
+    transition:background .2s,transform .15s,opacity .2s;
+  }
+  .btn:hover:not(:disabled){background:#3a2817;transform:translateY(-1px)}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .btn.plata{background:linear-gradient(180deg,#f3f5f9,#d3d7df 60%,#9aa0ac);color:#1a1206;border-color:#cfd3db}
+  .btn.rojo{border-color:#d3a49c;color:#e7b0a8}
+  .btn.grande{padding:.85em 1.6em;font-size:1rem}
+  input[type=file]{display:none}
+
+  .help{font-size:.86rem;color:var(--plata-hondo);margin-top:.7rem;line-height:1.5}
+  .help a{color:var(--oro-claro)}
+  details.tok summary{cursor:pointer;color:var(--oro-claro);font-family:"Cinzel",serif;font-size:.85rem;margin-top:.5rem}
+  details.tok ol{margin:.6rem 0 0 1.2rem;display:grid;gap:.3rem;color:var(--plata);font-size:.9rem}
+  details.tok code{font-family:ui-monospace,Menlo,monospace;background:rgba(0,0,0,.4);padding:.05em .35em;border-radius:3px;color:var(--oro-claro);font-size:.88em}
+
+  #app{display:none}
+  .toolbar{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;margin-bottom:1rem}
+  .toolbar .spacer{flex:1}
+  .tag{font-size:.78rem;color:var(--plata-hondo);font-family:"Cinzel",serif;letter-spacing:.04em}
+
+  .lista{display:grid;gap:.65rem}
+  .item{
+    display:grid;grid-template-columns:66px 1fr auto;gap:.9rem;align-items:center;
+    background:linear-gradient(180deg,#f2e9d6,#e5d8bd);color:var(--tinta);
+    border-radius:6px;padding:.55rem .7rem;position:relative;
+    box-shadow:0 6px 16px -10px rgba(0,0,0,.7);
+  }
+  .item.del{opacity:.55;filter:grayscale(.4)}
+  .item.del .cap{text-decoration:line-through}
+  .thumb{width:66px;height:66px;border-radius:5px;object-fit:cover;background:#2a1d12;
+     display:grid;place-items:center;color:var(--oro-claro);font-size:.6rem;text-align:center}
+  .campos{min-width:0}
+  .fname{font-size:.74rem;color:#6a5638;font-family:ui-monospace,Menlo,monospace;
+     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:.25rem;display:flex;gap:.4rem;align-items:center}
+  .badge{font-family:"EB Garamond",serif;font-size:.66rem;padding:.05em .5em;border-radius:20px;color:#fff;letter-spacing:.02em}
+  .badge.nueva{background:var(--ok)} .badge.falta{background:var(--amber)} .badge.borra{background:var(--rojo)}
+  .cap{width:100%;border:1px solid #c3b48f;border-radius:5px;padding:.42em .6em;
+     font-family:"EB Garamond",serif;font-size:1rem;color:var(--tinta);background:#fffdf7}
+  .cap:focus{outline:2px solid var(--oro);border-color:var(--oro)}
+  .ctrl{display:flex;gap:.25rem}
+  .ctrl button{width:30px;height:30px;border:1px solid #bda86f;border-radius:5px;cursor:pointer;
+     background:#fbf5e7;color:#5a4020;font-size:1rem;display:grid;place-items:center}
+  .ctrl button:hover{background:#f0e3c4}
+  .ctrl button.del{color:var(--rojo);border-color:#d3a49c}
+
+  .barra{
+    position:sticky;bottom:0;margin-top:1.2rem;padding:.9rem 1rem;border-radius:8px;
+    background:linear-gradient(180deg,rgba(20,14,8,.92),rgba(12,9,5,.96));
+    border:1px solid rgba(201,168,106,.3);display:flex;flex-wrap:wrap;gap:.7rem;
+    align-items:center;justify-content:space-between;backdrop-filter:blur(5px);
+  }
+  .resumen{color:var(--plata);font-size:.9rem}
+  .resumen b{color:var(--oro-claro)}
+
+  .log{margin-top:1rem;background:#0c0805;border:1px solid rgba(201,168,106,.25);border-radius:8px;
+     padding:.8rem 1rem;font-family:ui-monospace,Menlo,monospace;font-size:.82rem;color:var(--plata);
+     max-height:230px;overflow:auto;display:none;white-space:pre-wrap;line-height:1.6}
+  .log .ok{color:#8fd6a0}.log .err{color:#e7a79f}.log .info{color:var(--oro-claro)}
+  .msg{padding:.7rem 1rem;border-radius:6px;margin-bottom:1rem;font-size:.92rem;display:none}
+  .msg.show{display:block}
+  .msg.error{background:rgba(165,42,31,.25);border:1px solid var(--rojo);color:#f0c4bd}
+  .msg.good{background:rgba(76,138,90,.22);border:1px solid var(--ok);color:#bfe6c8}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Panel de la galería</h1>
+  <p class="sub">Leñadores de Asís · administración</p>
+
+  <!-- ====== CONEXIÓN ====== -->
+  <div class="panel" id="login">
+    <h2>Conectar con GitHub</h2>
+    <label class="f" for="token">Token de acceso (se queda en tu navegador, nunca se sube)</label>
+    <input type="password" id="token" placeholder="github_pat_..." autocomplete="off">
+
+    <details class="tok">
+      <summary>¿Cómo obtengo el token? (1 minuto)</summary>
+      <ol>
+        <li>Entra a <code>github.com/settings/personal-access-tokens</code> → <b>Generate new token</b> (fine-grained).</li>
+        <li>En <b>Repository access</b> elige <b>Only select repositories</b> → tu repo <code>Lenadores2001</code>.</li>
+        <li>En <b>Permissions → Repository permissions → Contents</b>, ponlo en <b>Read and write</b>.</li>
+        <li>Elige una expiración (ej. 90 días), genera y <b>copia</b> el token (empieza con <code>github_pat_</code>).</li>
+      </ol>
+    </details>
+
+    <details class="tok" style="margin-top:.4rem">
+      <summary>Configuración del repositorio (avanzado)</summary>
+      <div class="row" style="margin-top:.6rem">
+        <div><label class="f">Usuario</label><input type="text" id="owner" value="wilkipedia14-rgb"></div>
+        <div><label class="f">Repositorio</label><input type="text" id="repo" value="Lenadores2001"></div>
+      </div>
+      <div class="row">
+        <div><label class="f">Rama</label><input type="text" id="branch" value="main"></div>
+        <div><label class="f">Carpeta de fotos</label><input type="text" id="folder" value="fotos"></div>
+      </div>
+    </details>
+
+    <label class="chk"><input type="checkbox" id="remember"> Recordar el token en este equipo (úsalo solo en tu computadora personal)</label>
+    <button class="btn plata grande" id="btnConnect">Conectar</button>
+    <p class="help">El token es como una llave que solo abre este repositorio (permiso de escribir archivos). No se guarda en la web pública; los visitantes solo ven la galería.</p>
+  </div>
+
+  <div class="msg" id="msg"></div>
+
+  <!-- ====== APP ====== -->
+  <div id="app">
+    <div class="toolbar">
+      <label class="btn" for="file">＋ Añadir fotos</label>
+      <input type="file" id="file" accept="image/*" multiple>
+      <label class="chk" style="margin:0"><input type="checkbox" id="optim" checked> Optimizar antes de subir</label>
+      <div class="spacer"></div>
+      <span class="tag" id="tag"></span>
+      <button class="btn" id="btnReload" title="Volver a leer desde GitHub">↻ Recargar</button>
+      <button class="btn rojo" id="btnLogout">Salir</button>
+    </div>
+
+    <div id="lista" class="lista"></div>
+
+    <div class="barra">
+      <span class="resumen" id="resumen">—</span>
+      <button class="btn plata grande" id="btnPublish">⬆ Publicar cambios</button>
+    </div>
+
+    <div class="log" id="log"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var $ = function(id){return document.getElementById(id);};
+  var LS_KEY='lenadores_admin_token';
+  var token='', cfg={owner:'',repo:'',branch:'',folder:'fotos'};
+  var items=[]; // {kind:'existing'|'new', archivo, texto, sha, url, base64, del}
+  var existingNames=new Set();
+
+  // ---------- utilidades base64 UTF-8 ----------
+  function bytesToB64(bytes){
+    var bin='',chunk=0x8000;
+    for(var i=0;i<bytes.length;i+=chunk){ bin+=String.fromCharCode.apply(null,bytes.subarray(i,i+chunk)); }
+    return btoa(bin);
+  }
+  function utf8ToB64(str){ return bytesToB64(new TextEncoder().encode(str)); }
+  function b64ToUtf8(b64){
+    var bin=atob((b64||'').replace(/\s/g,'')), bytes=new Uint8Array(bin.length);
+    for(var i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  }
+  async function blobToB64(blob){ return bytesToB64(new Uint8Array(await blob.arrayBuffer())); }
+
+  function sanitize(base){
+    return (base||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .toLowerCase().replace(/\.[a-z0-9]+$/,'').replace(/[^a-z0-9]+/g,'-')
+      .replace(/^-+|-+$/g,'').slice(0,60) || 'foto';
+  }
+  function uniqueName(base, ext){
+    var name=base+ext, n=2, taken=new Set(existingNames);
+    items.forEach(function(it){ taken.add(it.archivo); });
+    while(taken.has(name)){ name=base+'-'+n+ext; n++; }
+    return name;
+  }
+
+  // ---------- API GitHub ----------
+  async function api(path, method, body){
+    var res=await fetch('https://api.github.com'+path,{
+      method:method||'GET',
+      headers:{'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'},
+      body: body?JSON.stringify(body):undefined
+    });
+    if(!res.ok){
+      var m=res.status;
+      try{ var j=await res.json(); m=(j&&j.message)||m; }catch(_){}
+      var e=new Error(m); e.status=res.status; throw e;
+    }
+    return res.status===204?null:res.json();
+  }
+  function cpath(name){ return '/repos/'+cfg.owner+'/'+cfg.repo+'/contents/'+cfg.folder+'/'+encodeURIComponent(name); }
+  function jpath(){ return '/repos/'+cfg.owner+'/'+cfg.repo+'/contents/fotos.json'; }
+
+  // ---------- optimizar imagen ----------
+  async function optimize(file){
+    var bmp;
+    try{ bmp=await createImageBitmap(file,{imageOrientation:'from-image'}); }
+    catch(e){ bmp=await createImageBitmap(file); }
+    var max=1600, s=Math.min(1, max/Math.max(bmp.width,bmp.height));
+    var w=Math.round(bmp.width*s), h=Math.round(bmp.height*s);
+    var c=document.createElement('canvas'); c.width=w; c.height=h;
+    c.getContext('2d').drawImage(bmp,0,0,w,h);
+    return await new Promise(function(res){ c.toBlob(res,'image/jpeg',0.82); });
+  }
+
+  // ---------- mensajes / log ----------
+  function msg(text, type){ var m=$('msg'); m.className='msg show '+(type||''); m.textContent=text; }
+  function clearMsg(){ $('msg').className='msg'; }
+  function logLine(text, cls){ var l=$('log'); l.style.display='block'; var s=document.createElement('div'); if(cls)s.className=cls; s.textContent=text; l.appendChild(s); l.scrollTop=l.scrollHeight; }
+  function logClear(){ $('log').innerHTML=''; $('log').style.display='none'; }
+
+  // ---------- conectar ----------
+  async function connect(silent){
+    token=$('token').value.trim();
+    cfg.owner=$('owner').value.trim(); cfg.repo=$('repo').value.trim();
+    cfg.branch=$('branch').value.trim()||'main'; cfg.folder=$('folder').value.trim()||'fotos';
+    if(!token){ msg('Pega tu token para conectar.','error'); return; }
+    if(!silent){ $('btnConnect').disabled=true; $('btnConnect').textContent='Conectando…'; }
+    clearMsg();
+    try{
+      // listado de la carpeta de fotos
+      var files=[];
+      try{ files=await api('/repos/'+cfg.owner+'/'+cfg.repo+'/contents/'+cfg.folder+'?ref='+cfg.branch); }
+      catch(e){ if(e.status!==404) throw e; files=[]; }
+      if(!Array.isArray(files)) files=[];
+      var byName={}; existingNames=new Set();
+      files.forEach(function(f){ if(f.type==='file'){ byName[f.name]=f; existingNames.add(f.name); } });
+
+      // fotos.json
+      var list=[], jsonSha=null;
+      try{
+        var j=await api(jpath()+'?ref='+cfg.branch);
+        jsonSha=j.sha; var parsed=JSON.parse(b64ToUtf8(j.content));
+        if(Array.isArray(parsed)) list=parsed;
+      }catch(e){ if(e.status!==404) throw e; }
+
+      // construir items en el orden del json; luego huérfanas
+      items=[]; var used=new Set();
+      list.forEach(function(entry){
+        if(!entry||!entry.archivo) return;
+        var f=byName[entry.archivo]; used.add(entry.archivo);
+        items.push({kind:'existing', archivo:entry.archivo, texto:entry.texto||'',
+                    sha:f?f.sha:null, url:f?f.download_url:null, del:false, missing:!f});
+      });
+      Object.keys(byName).forEach(function(nm){
+        if(used.has(nm)) return;
+        items.push({kind:'existing', archivo:nm, texto:'', sha:byName[nm].sha, url:byName[nm].download_url, del:false, missing:false});
+      });
+
+      // guardar token si corresponde
+      if($('remember').checked){ try{ localStorage.setItem(LS_KEY, token); }catch(_){}}
+
+      $('login').style.display='none'; $('app').style.display='block';
+      render(); logClear();
+      if(!silent) msg('Conectado a '+cfg.owner+'/'+cfg.repo+'. '+items.length+' fotos publicadas.','good');
+    }catch(e){
+      var hint = e.status===401 ? 'Token inválido o sin permisos.' :
+                 e.status===404 ? 'No se encontró el repositorio o la rama. Revisa la configuración.' :
+                 (''+e.message);
+      msg('No se pudo conectar: '+hint, 'error');
+    }finally{
+      $('btnConnect').disabled=false; $('btnConnect').textContent='Conectar';
+    }
+  }
+
+  // ---------- render ----------
+  function esc(s){return (s||'').replace(/[<>&"]/g,function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c];});}
+  function render(){
+    var lista=$('lista'); lista.innerHTML='';
+    items.forEach(function(it,i){
+      var row=document.createElement('div'); row.className='item'+(it.del?' del':'');
+      var badge = it.del?'<span class="badge borra">se borrará</span>'
+                : it.kind==='new'?'<span class="badge nueva">nueva</span>'
+                : it.missing?'<span class="badge falta">falta imagen</span>':'';
+      var thumb = it.url?'<img class="thumb" src="'+it.url+'" alt="" loading="lazy">':'<div class="thumb">sin<br>imagen</div>';
+      row.innerHTML =
+        thumb +
+        '<div class="campos">'+
+          '<div class="fname" title="'+esc(it.archivo)+'">'+esc(it.archivo)+badge+'</div>'+
+          '<input class="cap" type="text" maxlength="120" placeholder="Texto de la foto (una línea)" value="'+esc(it.texto)+'">'+
+        '</div>'+
+        '<div class="ctrl">'+
+          '<button data-a="up" title="Subir" '+(i===0?'disabled':'')+'>▲</button>'+
+          '<button data-a="down" title="Bajar" '+(i===items.length-1?'disabled':'')+'>▼</button>'+
+          '<button data-a="del" class="del" title="'+(it.del?'Deshacer':'Quitar')+'">'+(it.del?'↺':'✕')+'</button>'+
+        '</div>';
+      row.querySelector('.cap').addEventListener('input',function(e){ it.texto=e.target.value; });
+      row.querySelectorAll('.ctrl button').forEach(function(b){
+        b.addEventListener('click',function(){
+          var a=b.getAttribute('data-a');
+          if(a==='up'&&i>0){ items.splice(i-1,0,items.splice(i,1)[0]); }
+          else if(a==='down'&&i<items.length-1){ items.splice(i+1,0,items.splice(i,1)[0]); }
+          else if(a==='del'){
+            if(it.kind==='new'){ if(it.url)URL.revokeObjectURL(it.url); items.splice(i,1); }
+            else it.del=!it.del;
+          }
+          render();
+        });
+      });
+      lista.appendChild(row);
+    });
+    updateResumen();
+  }
+  function updateResumen(){
+    var nuevas=items.filter(function(it){return it.kind==='new'&&!it.del;}).length;
+    var borrar=items.filter(function(it){return it.kind==='existing'&&it.del;}).length;
+    var total=items.filter(function(it){return !it.del;}).length;
+    $('tag').textContent=total+' en la galería';
+    var parts=[]; if(nuevas)parts.push('<b>'+nuevas+'</b> por subir'); if(borrar)parts.push('<b>'+borrar+'</b> por borrar');
+    $('resumen').innerHTML = parts.length?parts.join(' · '):'Sin cambios pendientes';
+    $('btnPublish').disabled = (nuevas+borrar)===0 && !cambioOrden;
+  }
+
+  // ---------- añadir fotos ----------
+  var cambioOrden=false;
+  $('file').addEventListener('change', async function(e){
+    var files=Array.prototype.slice.call(e.target.files); e.target.value='';
+    for(var k=0;k<files.length;k++){
+      var f=files[k];
+      try{
+        var blob = $('optim').checked ? await optimize(f) : f;
+        var ext = $('optim').checked ? '.jpg' : ('.'+(f.name.split('.').pop()||'jpg').toLowerCase());
+        var name = uniqueName(sanitize(f.name), ext);
+        var b64 = await blobToB64(blob);
+        items.push({kind:'new', archivo:name, texto:'', sha:null,
+                    url:URL.createObjectURL(blob), base64:b64, del:false});
+      }catch(err){ msg('No se pudo procesar '+f.name+': '+err.message,'error'); }
+    }
+    render();
+  });
+
+  // marcar cambio de orden para habilitar publicar aunque no haya altas/bajas
+  $('lista').addEventListener('click',function(){ cambioOrden=true; updateResumen(); });
+
+  // ---------- publicar ----------
+  async function publish(){
+    var news=items.filter(function(it){return it.kind==='new'&&!it.del;});
+    var dels=items.filter(function(it){return it.kind==='existing'&&it.del;});
+    var finalList=items.filter(function(it){return !it.del;}).map(function(it){return {archivo:it.archivo,texto:it.texto||''};});
+
+    $('btnPublish').disabled=true; logClear(); clearMsg();
+    logLine('Publicando cambios…','info');
+    try{
+      for(var i=0;i<news.length;i++){
+        var it=news[i];
+        logLine('Subiendo '+it.archivo+' …');
+        var r=await api(cpath(it.archivo),'PUT',{message:'admin: subir '+it.archivo, content:it.base64, branch:cfg.branch});
+        it.kind='existing'; it.sha=r.content.sha; it.base64=null; existingNames.add(it.archivo);
+        logLine('  ✓ subida','ok');
+      }
+      for(var d=0;d<dels.length;d++){
+        var x=dels[d];
+        logLine('Borrando '+x.archivo+' …');
+        try{
+          await api(cpath(x.archivo),'DELETE',{message:'admin: borrar '+x.archivo, sha:x.sha, branch:cfg.branch});
+        }catch(e){
+          var meta=await api(cpath(x.archivo)+'?ref='+cfg.branch);
+          await api(cpath(x.archivo),'DELETE',{message:'admin: borrar '+x.archivo, sha:meta.sha, branch:cfg.branch});
+        }
+        logLine('  ✓ borrada','ok');
+      }
+      // fotos.json con sha fresco
+      logLine('Actualizando fotos.json …');
+      var sha=null; try{ var jm=await api(jpath()+'?ref='+cfg.branch); sha=jm.sha; }catch(e){ if(e.status!==404) throw e; }
+      await api(jpath(),'PUT',{message:'admin: actualizar fotos.json', content:utf8ToB64(JSON.stringify(finalList,null,2)), sha:sha, branch:cfg.branch});
+      logLine('  ✓ lista actualizada','ok');
+
+      logLine('¡Listo! La web se actualiza en ~1 minuto.','info');
+      cambioOrden=false;
+      msg('Cambios publicados. Abre tu galería en un minuto y recarga con Ctrl+F5.','good');
+      await connect(true); // re-sincroniza estado real
+    }catch(e){
+      logLine('Error: '+(e.message||e),'err');
+      msg('Ocurrió un error al publicar: '+(e.message||e)+'. Revisa el registro. Nada se pierde: puedes reintentar.','error');
+    }finally{
+      updateResumen();
+    }
+  }
+
+  // ---------- eventos ----------
+  $('btnConnect').addEventListener('click',function(){ connect(false); });
+  $('token').addEventListener('keydown',function(e){ if(e.key==='Enter') connect(false); });
+  $('btnReload').addEventListener('click',function(){ connect(true).then(function(){ msg('Datos recargados desde GitHub.','good'); }); });
+  $('btnPublish').addEventListener('click',publish);
+  $('btnLogout').addEventListener('click',function(){
+    token=''; items=[]; try{ localStorage.removeItem(LS_KEY); }catch(_){}
+    $('app').style.display='none'; $('login').style.display='block'; $('token').value=''; clearMsg(); logClear();
+  });
+
+  // token recordado
+  try{ var saved=localStorage.getItem(LS_KEY); if(saved){ $('token').value=saved; $('remember').checked=true; } }catch(_){}
+
+  // modo demo para previsualización (no afecta uso real)
+  if(location.search.indexOf('demo')>=0){
+    $('login').style.display='none'; $('app').style.display='block';
+    items=[
+      {kind:'existing',archivo:'promo-01.jpg',texto:'Nuestra última foto de aula, año 2001',sha:'a',url:'https://picsum.photos/seed/1/200',del:false},
+      {kind:'existing',archivo:'graduacion.jpg',texto:'Ceremonia de graduación',sha:'b',url:'https://picsum.photos/seed/2/200',del:true},
+      {kind:'new',archivo:'reencuentro-2026.jpg',texto:'',sha:null,url:'https://picsum.photos/seed/3/200',del:false}
+    ];
+    render();
+  }
+})();
+</script>
+</body>
+</html>
